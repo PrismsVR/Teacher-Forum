@@ -1,0 +1,14 @@
+{
+    "url": "{{ .Env.NODEBB_URL }}",
+    "secret": "{{ .Env.NODEBB_SECRET }}",
+    "database": "{{ .Env.NODEBB_DATABASE }}",
+    "postgres": {
+        "host": "{{ .Env.NODEBB_DB_HOST }}",
+        "port": "{{ .Env.NODEBB_DB_PORT }}",
+        "username": "{{ .Env.NODEBB_DB_USER }}",
+        "password": "{{ .Env.NODEBB_DB_PASSWORD }}",
+        "database": "{{ .Env.NODEBB_DB_NAME }}",
+        "ssl": "{{ .Env.NODEBB_DB_SSL }}"
+    },
+    "port": "{{ .Env.NODEBB_PORT }}"
+}

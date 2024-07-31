@@ -91,6 +91,11 @@ install_dependencies() {
   esac
 }
 
+# Function to generate config.json from environment variables at runtime.
+generate_config_from_env() {
+  gomplate -f $CONFIG.template -o $CONFIG
+}
+
 # Function to start setup session
 start_setup_session() {
   local config="$1"
@@ -179,6 +184,8 @@ main() {
   copy_or_link_files /usr/src/app "$CONFIG_DIR" "$PACKAGE_MANAGER"
   install_dependencies
 
+  generate_config_from_env
+  
   debug_log "PACKAGE_MANAGER: $PACKAGE_MANAGER"
   debug_log "CONFIG location: $CONFIG"
   debug_log "START_BUILD: $START_BUILD"
