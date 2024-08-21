@@ -4,56 +4,49 @@ services:
   nodebb:
     build: .
     # image: ghcr.io/nodebb/nodebb:latest
+    # image: teacher_forum
     restart: unless-stopped
     ports:
       - '4567:4567' # comment this out if you don't want to expose NodeBB to the host, or change the first number to any port you want
     volumes:
-      - nodebb-build:/usr/src/app/build
       - nodebb-uploads:/usr/src/app/public/uploads
-      - nodebb-config:/opt/config
-      - ./install/docker/setup.json:/usr/src/app/setup.json
-
-  postgres:
-    image: postgres:16.3-alpine
-    restart: unless-stopped
+      - ./install/docker:/usr/src/app/install/docker
     environment:
-      POSTGRES_USER: nodebb
-      POSTGRES_PASSWORD: nodebb
-      POSTGRES_DB: nodebb
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
+      NODEBB_URL: "http://localhost:4567"
+      NODEBB_SECRET: "d1cbf07a-21e5-4806-bf7d-aae99b9a0946"
+      NODEBB_DATABASE: "postgres"
+      NODEBB_DB_HOST: "localhost"
+      NODEBB_DB_PORT: "5432"
+      NODEBB_DB_USER: "postgres"
+      NODEBB_DB_PASSWORD: "W3Fc4Ab"
+      NODEBB_DB_NAME: "forum"
+      NODEBB_DB_SSL: "false"
+      NODEBB_PORT: "4567"
+    network_mode: "host"
 
-  redis:
-    image: redis:7.2.4-alpine
-    restart: unless-stopped
-    command: ['redis-server', '--appendonly', 'yes', '--loglevel', 'warning']
-    # command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"] # uncomment if you want to use snapshotting instead of AOF
-    volumes:
-      - redis-data:/data
-    profiles:
-      - redis
+      
+# {
+#           "url": "http://localhost:4567",
+#           "secret": "d1cbf07a-21e5-4806-bf7d-aae99b9a0946",
+#           "database": "postgres",
+#           "postgres": {
+#               "host": "127.0.0.1",
+#               "port": "5432",
+#               "username": "postgres",
+#               "password": "W3Fc4Ab",
+#               "database": "forum",
+#               "ssl": "false"
+#           },
+#           "port": "4567"
+#       }
 
 volumes:
-  postgres-data:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: ./.docker/database/postgresql/data
-
-  redis-data:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: ./.docker/database/redis
-
-  nodebb-build:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: ./.docker/build
+  # nodebb-build:
+  #   driver: local
+  #   driver_opts:
+  #     o: bind
+  #     type: none
+  #     device: ./.docker/build
 
   nodebb-uploads:
     driver: local
@@ -62,9 +55,9 @@ volumes:
       type: none
       device: ./.docker/public/uploads
 
-  nodebb-config:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: ./.docker/config
+  # nodebb-config:
+  #   driver: local
+  #   driver_opts:
+  #     o: bind
+  #     type: none
+  #     device: ./.docker/config
