@@ -50,7 +50,8 @@ module.exports = function (User) {
 			lastonline: timestamp,
 			status: 'online',
 		};
-		['picture', 'fullname', 'location', 'birthday'].forEach((field) => {
+                // BvdS:  temporary work-around for no "hidden" plugin
+                ['picture', 'fullname', 'location', 'birthday', 'hidden'].forEach((field) => {
 			if (data[field]) {
 				userData[field] = data[field];
 			}
@@ -69,7 +70,7 @@ module.exports = function (User) {
 			userData.userslug = slugify(renamedUsername);
 		}
 
-		const results = await plugins.hooks.fire('filter:user.create', { user: userData, data: data });
+	        const results = await plugins.hooks.fire('filter:user.create', { user: userData, data: data });
 		userData = results.user;
 
 		const uid = await db.incrObjectField('global', 'nextUid');
