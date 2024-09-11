@@ -24,14 +24,21 @@ RUN groupadd --gid ${GID} ${USER} \
     && useradd --uid ${UID} --gid ${GID} --home-dir /usr/src/app/ --shell /bin/bash ${USER} \
     && chown -R ${USER}:${USER} /usr/src/app/
 
+# Copy in node_modules to ensure locally installed git repo makes it in.
+COPY ./node_modules /usr/src/app/node_modules
+
+RUN chown -R ${USER}:${USER} /usr/src/app/node_modules/
+
 USER ${USER}
 
 # Prepage package.json
 COPY ./install/package.json /usr/src/app/
 
-RUN npm install --omit=dev
-    # TODO: generate lockfiles for each package manager
-    ## pnpm import \
+# npm should already have all installed via copy above.
+# RUN npm install --omit=dev
+
+# TODO: generate lockfiles for each package manager
+## pnpm import \
 
 FROM node:lts-slim AS final
 

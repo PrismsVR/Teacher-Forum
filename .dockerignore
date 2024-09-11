@@ -1,7 +1,7 @@
 .*
 logs
 test
-node_modules
+<!-- node_modules -->
 commitlint.config.js
 nodebb.bat
 renovate.json
