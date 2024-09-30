@@ -7,11 +7,6 @@ ENV NODE_ENV=production \
     UID=1001 \
     GID=1001
 
-WORKDIR /usr/src/app/
-
-# Install corepack to allow usage of other package managers
-RUN corepack enable
-
 # Removing unnecessary files for us
 RUN find . -mindepth 1 -maxdepth 1 -name '.*' ! -name '.' ! -name '..' -exec bash -c 'echo "Deleting {}"; rm -rf {}' \;
 
@@ -20,25 +15,6 @@ RUN apt-get update \
     apt-get -y --no-install-recommends install \
         tini
 
-RUN groupadd --gid ${GID} ${USER} \
-    && useradd --uid ${UID} --gid ${GID} --home-dir /usr/src/app/ --shell /bin/bash ${USER} \
-    && chown -R ${USER}:${USER} /usr/src/app/
-
-# Copy in node_modules to ensure locally installed git repo makes it in.
-COPY ./node_modules /usr/src/app/node_modules
-
-RUN chown -R ${USER}:${USER} /usr/src/app/node_modules/
-
-USER ${USER}
-
-# Prepage package.json
-COPY ./install/package.json /usr/src/app/
-
-# npm should already have all installed via copy above.
-# RUN npm install --omit=dev
-
-# TODO: generate lockfiles for each package manager
-## pnpm import \
 
 FROM node:lts-slim AS final
 
@@ -97,10 +73,11 @@ RUN corepack enable \
     && chown -R ${USER}:${USER} /usr/src/app/ \
     && chown -R ${USER}:${USER} /opt/config/
 
-COPY --from=build --chown=${USER}:${USER} /usr/src/app/node_modules /usr/src/app/node_modules
 COPY --from=build --chown=${USER}:${USER} /usr/bin/tini /usr/local/bin/
 
-COPY . /usr/src/app/
+COPY --chown=${USER}:${USER} . /usr/src/app/
+
+COPY --chown=${USER}:${USER} ./install/package.json /usr/src/app/
 
 RUN cp /usr/src/app/install/docker/docker-entrypoint.sh /usr/local/bin/ \
     && cp /usr/src/app/install/docker/entrypoint.sh /usr/local/bin/ \

@@ -8,4 +8,7 @@ renovate.json
 *.yml
 *.md
 Dockerfile
+dev.Dockerfile
 config.json
+package.json
+CHANGELOG.md
