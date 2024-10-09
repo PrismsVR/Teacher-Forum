@@ -15,6 +15,13 @@ RUN apt-get update \
     apt-get -y --no-install-recommends install \
         tini
 
+# Copy in Install version of Package.json and install deps for x64 linux deployment env.
+WORKDIR /usr/src/app/
+COPY --chown=${USER}:${USER} ./install/package.json /usr/src/app/
+RUN mkdir custom-plugins
+# Uses locally installed version of custom plugin nodebb-plugin-hidden to prevent need for git auth in build process.
+COPY --chown=${USER}:${USER} ./node_modules/nodebb-plugin-hidden ./custom-plugins/
+RUN npm install --cpu=x64 --os=linux --libc=glibc
 
 FROM node:lts-slim AS final
 
@@ -74,10 +81,14 @@ RUN corepack enable \
     && chown -R ${USER}:${USER} /opt/config/
 
 COPY --from=build --chown=${USER}:${USER} /usr/bin/tini /usr/local/bin/
+COPY --from=build --chown=${USER}:${USER} /usr/bin/tini /usr/local/bin/
 
+# this copy from local version ignores node_modules
 COPY --chown=${USER}:${USER} . /usr/src/app/
-
-COPY --chown=${USER}:${USER} ./install/package.json /usr/src/app/
+# copy in built node_modules & jsons
+COPY --from=build --chown=${USER}:${USER} /usr/src/app/package.json /usr/src/app/
+COPY --from=build --chown=${USER}:${USER} /usr/src/app/package-lock.json /usr/src/app/
+COPY --from=build --chown=${USER}:${USER} /usr/src/app/node_modules /usr/src/app/
 
 RUN cp /usr/src/app/install/docker/docker-entrypoint.sh /usr/local/bin/ \
     && cp /usr/src/app/install/docker/entrypoint.sh /usr/local/bin/ \

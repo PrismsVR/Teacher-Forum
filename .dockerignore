@@ -1,7 +1,8 @@
 .*
 logs
 test
-<!-- node_modules -->
+node_modules
+!/node_modules/nodebb-plugin-hidden
 commitlint.config.js
 nodebb.bat
 renovate.json
@@ -11,4 +12,5 @@ Dockerfile
 dev.Dockerfile
 config.json
 package.json
+package-lock.json
 CHANGELOG.md

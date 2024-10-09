@@ -65,4 +65,7 @@ module.exports = {
 			'ace/ace': path.resolve(__dirname, 'build/public/src/modules/ace-editor.js'),
 		},
 	},
+	externals: {
+	    sharp: 'commonjs sharp'
+	}
 };
