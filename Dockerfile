@@ -18,9 +18,9 @@ RUN apt-get update \
 # Copy in Install version of Package.json and install deps for x64 linux deployment env.
 WORKDIR /usr/src/app/
 COPY --chown=${USER}:${USER} ./install/package.json /usr/src/app/
-RUN mkdir custom-plugins
+RUN mkdir custom_plugins
 # Uses locally installed version of custom plugin nodebb-plugin-hidden to prevent need for git auth in build process.
-COPY --chown=${USER}:${USER} ./node_modules/nodebb-plugin-hidden ./custom-plugins/
+COPY --chown=${USER}:${USER} ./node_modules/nodebb-plugin-hidden ./custom_plugins/nodebb-plugin-hidden
 RUN npm install --cpu=x64 --os=linux --libc=glibc
 
 FROM node:lts-slim AS final
@@ -72,6 +72,7 @@ ENV NODE_ENV=production \
     GID=1001
 
 WORKDIR /usr/src/app/
+RUN mkdir custom_plugins
 
 RUN corepack enable \
     && groupadd --gid ${GID} ${USER} \
@@ -88,7 +89,12 @@ COPY --chown=${USER}:${USER} . /usr/src/app/
 # copy in built node_modules & jsons
 COPY --from=build --chown=${USER}:${USER} /usr/src/app/package.json /usr/src/app/
 COPY --from=build --chown=${USER}:${USER} /usr/src/app/package-lock.json /usr/src/app/
-COPY --from=build --chown=${USER}:${USER} /usr/src/app/node_modules /usr/src/app/
+COPY --from=build --chown=${USER}:${USER} /usr/src/app/custom_plugins /usr/src/app/custom_plugins
+
+# need to remove node_modules since we don't gitignore sub-folder. Needed for copying in custom plugins.
+# Sub Folder: !/node_modules/nodebb-plugin-hidden
+RUN rm -r /usr/src/app/node_modules
+COPY --from=build --chown=${USER}:${USER} /usr/src/app/node_modules /usr/src/app/node_modules
 
 RUN cp /usr/src/app/install/docker/docker-entrypoint.sh /usr/local/bin/ \
     && cp /usr/src/app/install/docker/entrypoint.sh /usr/local/bin/ \
